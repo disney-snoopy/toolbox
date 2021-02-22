@@ -4,8 +4,6 @@ from torch import nn
 from torchvision import models
 from torchvision import transforms as T
 
-imsize = 512
-
 def loader(path):
   preproc = T.Compose([
                      T.Resize((imsize, imsize)),            #Rescale to default size

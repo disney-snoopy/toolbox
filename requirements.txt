@@ -10,4 +10,3 @@ torchvision
 # API
 
 # utilities
-PIL
