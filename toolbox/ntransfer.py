@@ -4,7 +4,7 @@ from torch import nn
 from torchvision import models
 from torchvision import transforms as T
 
-def loader(path):
+def loader(path, imsize):
   preproc = T.Compose([
                      T.Resize((imsize, imsize)),            #Rescale to default size
                      T.ToTensor()])                         #transform image into torch tensor
