@@ -174,6 +174,7 @@ def run_style_transfer(content_img, style_img, input_img, content_layers, style_
                        cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
                        num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50):
     output_imgs = []
+    epoch_nums = []
     if cnn == None:
         cnn = models.vgg19(pretrained=True).features.to(device).eval()
 
@@ -216,6 +217,7 @@ def run_style_transfer(content_img, style_img, input_img, content_layers, style_
                 print()
             if run[0] % output_freq == 0:
                 output_imgs.append(input_img.detach().data.clamp_(0,1))
+                epoch_nums.append(run[0])
 
             return style_score + content_score
 
@@ -223,8 +225,9 @@ def run_style_transfer(content_img, style_img, input_img, content_layers, style_
 
     # a last correction...
     output_imgs.append(input_img.data.clamp_(0,1))
+    epoch_nums.append(run[0])
 
-    return output_imgs
+    return output_imgs, epoch_nums
 
 class lbfgs_Transfer():
     def __init__(self, content_layers=['conv_4'], style_layers=['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']):
@@ -234,10 +237,12 @@ class lbfgs_Transfer():
     def learn(self, content_img, style_img, input_img, num_steps=300, style_weight=1e6, content_weight=1):
         self.img_content = unloader(content_img[0])
         self.img_style = unloader(style_img[0])
+        self.style_weight = style_weight
+        self.content_weight = content_weight
 
-        self.output_imgs = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
-                           cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                           num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
+        self.output_imgs, self.epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
+                                                                cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
+                                                                num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
 
     def plot_output(self, img_per_row = 3):
         num_outputs = len(self.output_imgs)
@@ -262,7 +267,7 @@ class lbfgs_Transfer():
         plt.subplots_adjust(wspace=0.01, hspace=0.01)
         #scientific notation
         sn_style_weight ='{:e}'.format(self.style_weight)
-        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight},\nlearning rate: {round(float(self.lr), 3)}', fontsize = 12)
+        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}', fontsize = 12)
 
 
 
