@@ -18,6 +18,7 @@ def unloader(img):
 
   img = img.squeeze(0)
   img = t_unload(img)
+
   return img
 
 def model_construct(layer_count):
@@ -29,6 +30,7 @@ def model_construct(layer_count):
     layer_name = f'layer_{counter}'
     counter += 1
     model.add_module(layer_name, layers[i])
+
   return model
 
 def white_noise(imsize):
@@ -38,3 +40,9 @@ def white_noise(imsize):
   img_noise = img_noise.unsqueeze(0)
 
   return img_noise
+
+def gram_mat(f_map):
+  a, b, c, d = f_map.shape
+  f_map = f_map.view(a*b, c*d)
+  gram = torch.mm(f_map, f_map.t())
+  return gram.div(a*b*c*d)
