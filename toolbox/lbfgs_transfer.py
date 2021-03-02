@@ -21,8 +21,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 imsize = 512 if torch.cuda.is_available() else 128  # use small size if no gpu
 
 loader = transforms.Compose([
-    transforms.Resize(imsize),  # scale imported image
-    transforms.CenterCrop(imsize),
+    #transforms.Resize(imsize),  # scale imported image
+    #transforms.CenterCrop(imsize),
     transforms.ToTensor()])  # transform it into a torch tensor
 
 
@@ -217,7 +217,7 @@ def run_style_transfer(content_img, style_img, input_img, content_layers, style_
                     print('Style Loss : {:4f} Content Loss: {:4f}'.format(
                         style_score.item(), content_score.item()))
             if run[0] % output_freq == 0:
-                output_imgs.append(input_img.detach().data.clamp_(0,1))
+                output_imgs.append(input_img.clone().detach().data.clamp_(0,1))
                 epoch_nums.append(run[0])
 
             return style_score + content_score
@@ -256,6 +256,7 @@ class lbfgs_Transfer():
         fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
         axs = axs.flatten()
         img_counter = 0
+        print()
 
         for ax in axs:
             ax.imshow(img_unloader(self.output_imgs[img_counter][0]))
