@@ -174,7 +174,7 @@ def get_input_optimizer(input_img):
 
 def run_style_transfer(content_img, style_img, input_img, content_layers, style_layers,
                        cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                       num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50):
+                       num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50, verbose = 1):
     output_imgs = []
     epoch_nums = []
     if cnn == None:
@@ -212,11 +212,10 @@ def run_style_transfer(content_img, style_img, input_img, content_layers, style_
 
             run[0] += 1
             if run[0] % 50 == 0:
-
-                print("run {}:".format(run))
-                print('Style Loss : {:4f} Content Loss: {:4f}'.format(
-                    style_score.item(), content_score.item()))
-                print()
+                if verbose == 1:
+                    print("run {}:".format(run))
+                    print('Style Loss : {:4f} Content Loss: {:4f}'.format(
+                        style_score.item(), content_score.item()))
             if run[0] % output_freq == 0:
                 output_imgs.append(input_img.detach().data.clamp_(0,1))
                 epoch_nums.append(run[0])
@@ -244,7 +243,7 @@ class lbfgs_Transfer():
 
         self.output_imgs, self.epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
                                                                 cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                                                                num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
+                                                                num_steps=300,style_weight=style_weight, content_weight=1, output_freq = 50)
 
     def plot_output(self, img_per_row = 3):
         num_outputs = len(self.output_imgs)
@@ -271,7 +270,7 @@ class lbfgs_Transfer():
         sn_style_weight ='{:e}'.format(self.style_weight)
         axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
-    def search_weight(self, content_img, style_img, num_steps=100,begin = 5, end = 12):
+    def search_weight(self, content_img, style_img, input_img, num_steps=100,begin = 5, end = 12):
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
         output_imgs = []
@@ -279,7 +278,7 @@ class lbfgs_Transfer():
 
             output_img, epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
                                                                     cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                                                                    num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
+                                                                    num_steps=100,style_weight=style_weight, content_weight=1, output_freq = num_steps, verbose = 0)
             output_imgs.append(output_img)
 
         img_per_row = 3
