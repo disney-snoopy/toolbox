@@ -296,9 +296,9 @@ class lbfgs_Transfer():
         style_img = style_loader(self.img_style)
 
         nums = end - begin + 1
-        style_weights = np.logspace(begin, end, num=nums)
+        self.style_weights = np.logspace(begin, end, num=nums)
         self.output_imgs = []
-        for style_weight in style_weights:
+        for style_weight in self.style_weights:
             inp_img = input_img.clone()
             output_img, epoch_nums = run_style_transfer(content_img, style_img, inp_img, self.content_layers, self.style_layers,
                                                                     cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
@@ -315,7 +315,7 @@ class lbfgs_Transfer():
         img_counter = 0
         for idx, img in enumerate(self.output_imgs):
             axs[idx].imshow(img_unloader(img[-1][0]))
-            axs[idx].set_title(f'style_weight: {style_weights[idx]}', backgroundcolor = 'gray', color = 'white')
+            axs[idx].set_title(f'style_weight: {self.style_weights[idx]}', backgroundcolor = 'gray', color = 'white')
         axs[0].text(30, -120, f'content weight: {1}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
 
