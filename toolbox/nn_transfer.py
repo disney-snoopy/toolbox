@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from toolbox.ntransfer import *
 import numpy as np
 from PIL import Image

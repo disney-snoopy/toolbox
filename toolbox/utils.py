@@ -3,6 +3,7 @@ from PIL import Image
 from torch import nn
 from torchvision import models
 from torchvision import transforms as T
+from torch import mm
 
 def loader(path, imsize = 512):
   preproc = T.Compose([
@@ -44,5 +45,5 @@ def white_noise(imsize):
 def gram_mat(f_map):
   a, b, c, d = f_map.shape
   f_map = f_map.view(a*b, c*d)
-  gram = torch.mm(f_map, f_map.t())
+  gram = mm(f_map, f_map.t())
   return gram.div(a*b*c*d)
