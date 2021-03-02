@@ -274,18 +274,19 @@ class lbfgs_Transfer():
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
         output_imgs = []
-        inp_img = input_img.clone()
         for style_weight in style_weights:
-
+            inp_img = input_img.clone()
             output_img, epoch_nums = run_style_transfer(content_img, style_img, inp_img, self.content_layers, self.style_layers,
                                                                     cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                                                                    num_steps=100,style_weight=style_weight, content_weight=1, output_freq = num_steps, verbose = 0)
+                                                                    num_steps=num_steps,style_weight=style_weight, content_weight=1, output_freq = num_steps, verbose = 0)
             output_imgs.append(output_img)
 
         img_per_row = 3
         num_rows = int(np.ceil(len(output_imgs)/img_per_row))
 
-        fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (6 * img_per_row,6*num_rows), sharex=True, sharey=True)
+        fig.suptitle(f'Epochs: {num_steps}', fontsize=12)
+
         axs = axs.flatten()
         img_counter = 0
         for idx, img in enumerate(output_imgs):
