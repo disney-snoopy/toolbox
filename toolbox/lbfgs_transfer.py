@@ -32,13 +32,13 @@ def image_loader(image_name):
     image = loader(image).unsqueeze(0)
     return image.to(device, torch.float)
 
-unloader = transforms.ToPILImage()  # reconvert into PIL image
+img_unloader = transforms.ToPILImage()  # reconvert into PIL image
 plt.ion()
 
 def imshow(tensor, title=None):
     image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
     image = image.squeeze(0)      # remove the fake batch dimension
-    image = unloader(image)
+    image = img_unloader(image)
     plt.figure(figsize=(7,4))
     plt.imshow(image)
     if title is not None:
@@ -236,8 +236,8 @@ class lbfgs_Transfer():
         self.style_layers = style_layers
 
     def learn(self, content_img, style_img, input_img, num_steps=300, style_weight=1e6, content_weight=1):
-        self.img_content = unloader(content_img[0])
-        self.img_style = unloader(style_img[0])
+        self.img_content = img_unloader(content_img[0])
+        self.img_style = img_unloader(style_img[0])
         self.style_weight = style_weight
         self.content_weight = content_weight
 
@@ -258,7 +258,7 @@ class lbfgs_Transfer():
         img_counter = 0
 
         for ax in axs:
-            ax.imshow(unloader(self.output_imgs[img_counter][0]))
+            ax.imshow(img_unloader(self.output_imgs[img_counter][0]))
             ax.set_title(f'Epoch: {self.epoch_nums[img_counter]+1}')
             img_counter += 1
             ax.margins(0.05)
@@ -274,9 +274,10 @@ class lbfgs_Transfer():
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
         output_imgs = []
+        inp_img = input_img.clone()
         for style_weight in style_weights:
 
-            output_img, epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
+            output_img, epoch_nums = run_style_transfer(content_img, style_img, inp_img, self.content_layers, self.style_layers,
                                                                     cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
                                                                     num_steps=100,style_weight=style_weight, content_weight=1, output_freq = num_steps, verbose = 0)
             output_imgs.append(output_img)
@@ -288,7 +289,7 @@ class lbfgs_Transfer():
         axs = axs.flatten()
         img_counter = 0
         for idx, img in enumerate(output_imgs):
-            axs[idx].imshow(unloader(img[0][0]))
+            axs[idx].imshow(img_unloader(img[0][0]))
             axs[idx].set_title(f'setyle_weight: {style_weights[idx]}')
 
 
