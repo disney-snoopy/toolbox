@@ -282,8 +282,9 @@ class lbfgs_Transfer():
             output_imgs.append(output_img)
 
         img_per_row = 3
+        num_rows = int(np.ceil(len(output_imgs)/img_per_row))
 
-        fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
         axs = axs.flatten()
         img_counter = 0
         for idx, img in enumerate(output_imgs):
