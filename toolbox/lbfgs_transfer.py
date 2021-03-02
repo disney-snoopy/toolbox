@@ -269,12 +269,27 @@ class lbfgs_Transfer():
         plt.subplots_adjust(wspace=0.01, hspace=0.01)
         #scientific notation
         sn_style_weight ='{:e}'.format(self.style_weight)
-        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}', fontsize = 12)
+        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
+    def search_weight(self, begin = 5, end = 12, content_img, style_img, num_steps=100):
+        nums = end - begin + 1
+        style_weights = np.logspace(begin, end, num=nums)
+        output_imgs = []
+        for style_weight in style_weights:
 
+            output_img, epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
+                                                                    cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
+                                                                    num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
+            output_imgs.append(output_img)
 
+        img_per_row = 3
 
-
+        fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
+        axs = axs.flatten()
+        img_counter = 0
+        for idx, img in enumerate(output_imgs):
+            axs[idx].imshow(unloader(img[0]))
+            axs[idx].set_title(f'setyle_weight: {style_weights[idx]}')
 
 
 
