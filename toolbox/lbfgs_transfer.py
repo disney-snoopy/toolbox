@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
