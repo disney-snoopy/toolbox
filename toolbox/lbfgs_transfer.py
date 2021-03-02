@@ -288,7 +288,7 @@ class lbfgs_Transfer():
         axs = axs.flatten()
         img_counter = 0
         for idx, img in enumerate(output_imgs):
-            axs[idx].imshow(unloader(img[0]))
+            axs[idx].imshow(unloader(img[0][0]))
             axs[idx].set_title(f'setyle_weight: {style_weights[idx]}')
 
 
