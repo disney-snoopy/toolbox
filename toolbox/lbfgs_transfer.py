@@ -271,7 +271,7 @@ class lbfgs_Transfer():
         sn_style_weight ='{:e}'.format(self.style_weight)
         axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
-    def search_weight(self, begin = 5, end = 12, content_img, style_img, num_steps=100):
+    def search_weight(self, content_img, style_img, num_steps=100,begin = 5, end = 12):
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
         output_imgs = []
