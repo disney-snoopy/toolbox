@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from torch import nn
-from torch import optim
+from torch import nn, optim, cuda, device
 from torchvision import models
 from torchvision import transforms as T
 import torch.nn.functional as F
 
 from toolbox.utils import *
+
+device = torch.device("cuda" if cuda.is_available() else "cpu")
 
 class nnTransfer(nn.Module):
   '''this class constructs a nn based on a given pretrained model
