@@ -18,19 +18,19 @@ import copy
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # desired size of the output image
-imsize = 512 if torch.cuda.is_available() else 128  # use small size if no gpu
+#imsize = 512 if torch.cuda.is_available() else 128  # use small size if no gpu
 
-loader = transforms.Compose([
-    transforms.Resize(imsize),  # scale imported image
-    transforms.CenterCrop(imsize),
-    transforms.ToTensor()])  # transform it into a torch tensor
+#loader = transforms.Compose([
+ #   transforms.Resize(imsize),  # scale imported image
+  #  transforms.CenterCrop(imsize),
+   # transforms.ToTensor()])  # transform it into a torch tensor
 
 
-def image_loader(image_name):
-    image = Image.open(image_name)
-    # fake batch dimension required to fit network's input dimensions
-    image = loader(image).unsqueeze(0)
-    return image.to(device, torch.float)
+#def image_loader(image_name):
+ #   image = Image.open(image_name)
+  #  # fake batch dimension required to fit network's input dimensions
+   # image = loader(image).unsqueeze(0)
+    #return image.to(device, torch.float)
 
 img_unloader = transforms.ToPILImage()  # reconvert into PIL image
 plt.ion()
