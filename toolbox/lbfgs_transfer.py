@@ -235,7 +235,7 @@ class lbfgs_Transfer():
         self.content_layers = content_layers
         self.style_layers = style_layers
 
-    def learn(self, content_img, style_img, input_img, num_steps=300, style_weight=1e6, content_weight=1):
+    def learn(self, content_img, style_img, input_img, num_steps=300, style_weight=1e6, content_weight=1, epochs = 200, output_freq = 20):
         self.img_content = img_unloader(content_img[0])
         self.img_style = img_unloader(style_img[0])
         self.style_weight = style_weight
@@ -243,7 +243,7 @@ class lbfgs_Transfer():
 
         self.output_imgs, self.epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
                                                                 cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                                                                num_steps=300,style_weight=style_weight, content_weight=1, output_freq = 50)
+                                                                num_steps=epochs,style_weight=style_weight, content_weight=1, output_freq = output_freq)
 
     def plot_output(self, img_per_row = 3):
         num_outputs = len(self.output_imgs)
