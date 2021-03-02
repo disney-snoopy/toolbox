@@ -235,7 +235,7 @@ class lbfgs_Transfer():
         self.img_content = unloader(content_img[0])
         self.img_style = unloader(style_img[0])
 
-        self.output_imgs = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers
+        self.output_imgs = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
                            cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
                            num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
 
