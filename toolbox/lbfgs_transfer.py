@@ -292,6 +292,7 @@ class lbfgs_Transfer():
         for idx, img in enumerate(output_imgs):
             axs[idx].imshow(img_unloader(img[-1][0]))
             axs[idx].set_title(f'setyle_weight: {style_weights[idx]}')
+        axs[0].text(30, -60, f'content weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
 
 
