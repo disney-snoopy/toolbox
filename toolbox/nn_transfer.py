@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from toolbox.ntransfer import *
+from toolbox.utils import *
 import numpy as np
 from PIL import Image
 from torch import nn
