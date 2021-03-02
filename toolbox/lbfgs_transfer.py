@@ -297,23 +297,23 @@ class lbfgs_Transfer():
 
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
-        output_imgs = []
+        self.output_imgs = []
         for style_weight in style_weights:
             inp_img = input_img.clone()
             output_img, epoch_nums = run_style_transfer(content_img, style_img, inp_img, self.content_layers, self.style_layers,
                                                                     cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
                                                                     num_steps=num_steps,style_weight=style_weight, content_weight=1, output_freq = num_steps, verbose = 0)
-            output_imgs.append(output_img)
+            self.output_imgs.append(output_img)
 
         img_per_row = 3
-        num_rows = int(np.ceil(len(output_imgs)/img_per_row))
+        num_rows = int(np.ceil(len(self.output_imgs)/img_per_row))
 
         fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (6*img_per_row, 6*num_rows), sharex=True, sharey=True)
         fig.suptitle(f'Epochs: {num_steps}', fontsize=12)
 
         axs = axs.flatten()
         img_counter = 0
-        for idx, img in enumerate(output_imgs):
+        for idx, img in enumerate(self.output_imgs):
             axs[idx].imshow(img_unloader(img[-1][0]))
             axs[idx].set_title(f'style_weight: {style_weights[idx]}', backgroundcolor = 'gray', color = 'white')
         axs[0].text(30, -120, f'content weight: {1}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
