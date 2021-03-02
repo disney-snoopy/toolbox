@@ -21,8 +21,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 imsize = 512 if torch.cuda.is_available() else 128  # use small size if no gpu
 
 loader = transforms.Compose([
-    #transforms.Resize(imsize),  # scale imported image
-    #transforms.CenterCrop(imsize),
+    transforms.Resize(imsize),  # scale imported image
+    transforms.CenterCrop(imsize),
     transforms.ToTensor()])  # transform it into a torch tensor
 
 
@@ -241,6 +241,17 @@ class lbfgs_Transfer():
         self.style_weight = style_weight
         self.content_weight = content_weight
 
+        content_dim = (content_img.shape[-2], content_img.shape[-1])
+        style_transform = transforms.Compose([transforms.Resize((content_dim)),
+                                              transforms.ToTensor()])
+
+        def style_loader(image_name):
+          # fake batch dimension required to fit network's input dimensions
+          image = style_transform(image_name).unsqueeze(0)
+          return image.to(device, torch.float)
+        style_img = style_loader(self.img_style)
+
+
         self.output_imgs, self.epoch_nums = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers,
                                                                 cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
                                                                 num_steps=epochs,style_weight=style_weight, content_weight=1, output_freq = output_freq)
@@ -253,14 +264,13 @@ class lbfgs_Transfer():
         axs[0].imshow(self.img_content)
         axs[1].imshow(self.img_style)
 
-        fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 8 * img_per_row), sharex=True, sharey=True)
         axs = axs.flatten()
         img_counter = 0
-        print()
 
         for ax in axs:
             ax.imshow(img_unloader(self.output_imgs[img_counter][0]))
-            ax.set_title(f'Epoch: {self.epoch_nums[img_counter]+1}')
+            ax.set_title(f'Epoch: {self.epoch_nums[img_counter]+1}', backgroundcolor = 'gray', color = 'white')
             img_counter += 1
             ax.margins(0.05)
             if img_counter == num_outputs:
@@ -269,9 +279,22 @@ class lbfgs_Transfer():
         plt.subplots_adjust(wspace=0.01, hspace=0.01)
         #scientific notation
         sn_style_weight ='{:e}'.format(self.style_weight)
-        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
+        axs[0].text(30, -120, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
     def search_weight(self, content_img, style_img, input_img, num_steps=100,begin = 5, end = 12):
+        self.img_content = img_unloader(content_img[0])
+        self.img_style = img_unloader(style_img[0])
+
+        content_dim = (content_img.shape[-2], content_img.shape[-1])
+        style_transform = transforms.Compose([transforms.Resize((content_dim)),
+                                              transforms.ToTensor()])
+
+        def style_loader(image_name):
+          # fake batch dimension required to fit network's input dimensions
+          image = style_transform(image_name).unsqueeze(0)
+          return image.to(device, torch.float)
+        style_img = style_loader(self.img_style)
+
         nums = end - begin + 1
         style_weights = np.logspace(begin, end, num=nums)
         output_imgs = []
@@ -285,15 +308,15 @@ class lbfgs_Transfer():
         img_per_row = 3
         num_rows = int(np.ceil(len(output_imgs)/img_per_row))
 
-        fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (6 * img_per_row,6*num_rows), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrows=num_rows, ncols=int(img_per_row), figsize = (6*img_per_row, 6*num_rows), sharex=True, sharey=True)
         fig.suptitle(f'Epochs: {num_steps}', fontsize=12)
 
         axs = axs.flatten()
         img_counter = 0
         for idx, img in enumerate(output_imgs):
             axs[idx].imshow(img_unloader(img[-1][0]))
-            axs[idx].set_title(f'style_weight: {style_weights[idx]}')
-        axs[0].text(30, -60, f'content weight: {1}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
+            axs[idx].set_title(f'style_weight: {style_weights[idx]}', backgroundcolor = 'gray', color = 'white')
+        axs[0].text(30, -120, f'content weight: {1}\ncontent layers: {self.content_layers}\nstyle layers: {self.style_layers}', fontsize = 12)
 
 
 
