@@ -170,15 +170,17 @@ def get_input_optimizer(input_img):
     optimizer = optim.LBFGS([input_img.requires_grad_()])
     return optimizer
 
-def run_style_transfer(content_img, style_img, input_img,
+def run_style_transfer(content_img, style_img, input_img, content_layers, style_layers,
                        cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
-                       num_steps=300,style_weight=1000000, content_weight=1):
+                       num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50):
+    output_imgs = []
     if cnn == None:
         cnn = models.vgg19(pretrained=True).features.to(device).eval()
 
     print('Building the style transfer model..')
-    model, style_losses, content_losses = get_style_model_and_losses(cnn,
-        normalization_mean, normalization_std, style_img, content_img)
+    model, style_losses, content_losses = get_style_model_and_losses(cnn,normalization_mean,
+                                                                    normalization_std,
+                                                                    style_img, content_img, content_layers, style_layers)
     optimizer = get_input_optimizer(input_img)
 
     print('Optimizing..')
@@ -207,19 +209,64 @@ def run_style_transfer(content_img, style_img, input_img,
 
             run[0] += 1
             if run[0] % 50 == 0:
+
                 print("run {}:".format(run))
                 print('Style Loss : {:4f} Content Loss: {:4f}'.format(
                     style_score.item(), content_score.item()))
                 print()
+            if run[0] % output_freq == 0:
+                output_imgs.append(input_img.detach().data.clamp_(0,1))
 
             return style_score + content_score
 
         optimizer.step(closure)
 
     # a last correction...
-    input_img.data.clamp_(0, 1)
+    output_imgs.append(input_img.data.clamp_(0,1))
 
-    return input_img
+    return output_imgs
+
+class lbfgs_Transfer():
+    def __init__(self, content_layers=['conv_4'], style_layers=['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']):
+        self.content_layers = content_layers
+        self.style_layers = style_layers
+
+    def learn(self, content_img, style_img, input_img, num_steps=300, style_weight=1e6, content_weight=1):
+        self.img_content = unloader(content_img[0])
+        self.img_style = unloader(style_img[0])
+
+        self.output_imgs = run_style_transfer(content_img, style_img, input_img, self.content_layers, self.style_layers
+                           cnn=None, normalization_mean=cnn_normalization_mean, normalization_std=cnn_normalization_std,
+                           num_steps=300,style_weight=1000000, content_weight=1, output_freq = 50)
+
+    def plot_output(self, img_per_row = 3):
+        num_outputs = len(self.output_imgs)
+        num_rows = np.ceil(num_outputs/img_per_row)
+        fig, axs = plt.subplots(1, 2, figsize = (16, 6), sharey=True, sharex=True)
+        axs = axs.flatten()
+        axs[0].imshow(self.img_content)
+        axs[1].imshow(self.img_style)
+
+        fig, axs = plt.subplots(nrows=int(num_rows), ncols=int(img_per_row), figsize = (16, 6 * img_per_row), sharex=True, sharey=True)
+        axs = axs.flatten()
+        img_counter = 0
+
+        for ax in axs:
+            ax.imshow(unloader(self.output_imgs[img_counter][0]))
+            ax.set_title(f'Epoch: {self.epoch_nums[img_counter]+1}')
+            img_counter += 1
+            ax.margins(0.05)
+            if img_counter == num_outputs:
+                break
+
+        plt.subplots_adjust(wspace=0.01, hspace=0.01)
+        #scientific notation
+        sn_style_weight ='{:e}'.format(self.style_weight)
+        axs[0].text(30, -60, f'Style weight: {sn_style_weight}\ncontent weight: {self.content_weight},\nlearning rate: {round(float(self.lr), 3)}', fontsize = 12)
+
+
+
+
 
 
 
